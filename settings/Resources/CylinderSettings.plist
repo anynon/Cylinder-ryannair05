@@ -18,13 +18,13 @@
 			<key>default</key>
 			<true/>
 			<key>defaults</key>
-			<string>com.r333d.cylinder</string>
+			<string>com.ryannair05.cylinder</string>
 			<key>key</key>
 			<string>enabled</string>
 			<key>label</key>
 			<string>ENABLED</string>
 			<key>PostNotification</key>
-			<string>com.r333d.cylinder/settingsChanged</string>
+			<string>com.ryannair05.cylinder/settingsChanged</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -32,7 +32,7 @@
 			<key>default</key>
 			<string></string>
 			<key>defaults</key>
-			<string>com.r333d.cylinder</string>
+			<string>com.ryannair05.cylinder</string>
 			<key>detail</key>
 			<string>CLEffectsController</string>
 			<key>id</key>
@@ -50,7 +50,7 @@
 			<key>default</key>
 			<string></string>
 			<key>defaults</key>
-			<string>com.r333d.cylinder</string>
+			<string>com.ryannair05.cylinder</string>
 			<key>detail</key>
 			<string>CLFormulasController</string>
 			<key>id</key>
@@ -68,13 +68,13 @@
 			<key>default</key>
 			<false/>
 			<key>defaults</key>
-			<string>com.r333d.cylinder</string>
+			<string>com.ryannair05.cylinder</string>
 			<key>key</key>
 			<string>randomized</string>
 			<key>label</key>
 			<string>RANDOMIZE</string>
 			<key>PostNotification</key>
-			<string>com.r333d.cylinder/settingsChanged</string>
+			<string>com.ryannair05.cylinder/settingsChanged</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -90,7 +90,7 @@
 			<key>default</key>
 			<string></string>
 			<key>defaults</key>
-			<string>com.r333d.cylinder</string>
+			<string>com.ryannair05.cylinder</string>
 			<key>detail</key>
 			<string>CLDonateController</string>
 			<key>id</key>
