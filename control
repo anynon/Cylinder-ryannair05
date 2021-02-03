@@ -1,0 +1,12 @@
+Package: com.ryannair05.cylinder
+Name: Cylinder Reborn
+Version: 1.1~ryannair05
+Architecture: iphoneos-arm
+Depends: firmware (>= 11.0), mobilesubstrate (>= 0.9.6011), preferenceloader, cy+cpu.arm64e | liblua5.4-0
+Icon: file:///Library/PreferenceBundles/CylinderSettings.bundle/Icon@2x.png
+Depiction: http://moreinfo.thebigboss.org/moreinfo/depiction.php?file=cylinderDp
+Description: Make your icons dance
+Homepage: http://github.com/rweichler/cylinder
+Maintainer: Ryan Nair
+Author: Ryan Nair & Reed Weichler (rweichler)
+Section: Tweaks
