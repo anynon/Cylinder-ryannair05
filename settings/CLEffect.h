@@ -29,7 +29,6 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 @property (nonatomic, assign, getter=isBroken) BOOL broken;
 @property (nonatomic, assign, getter=isSelected) BOOL selected;
 
-+ (CLEffect *)effectWithPath:(NSString *)path;
 - (id)initWithPath:(NSString *)path;
 
 @end

@@ -23,10 +23,6 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 @implementation CLEffect
 @synthesize name=_name, path=_path, directory=_directory, broken=_broken, selected=_selected, cell=_cell;
 
-+ (CLEffect*)effectWithPath:(NSString*)path {
-	return [[self alloc] initWithPath:path];
-}
-
 - (id)initWithPath:(NSString*)path {
 	BOOL isDir;
 	BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir];

@@ -110,7 +110,7 @@ static CLEffectsController *sharedController = nil;
         //NSMutableArray *effects = [NSMutableArray array];
         for(NSString *script in scripts)
         {
-            CLEffect *effect = [CLEffect effectWithPath:[path stringByAppendingPathComponent:script]];
+            CLEffect *effect = [[CLEffect alloc] initWithPath:[path stringByAppendingPathComponent:script]];
             if(effect)
                 [self.effects addObject:effect];
         }
