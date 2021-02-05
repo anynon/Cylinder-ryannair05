@@ -62,13 +62,13 @@ static NSDictionary *gen_error_dict(NSString *script, BOOL broken)
 
 static void error_notification(NSArray *errors)
 {
-    // NSData *data = [NSPropertyListSerialization dataFromPropertyList:errors format:NSPropertyListBinaryFormat_v1_0 errorDescription:NULL];
-    // if(data)
-    // {
-    //     [data writeToFile:LOG_DIR".errornotify" atomically:true];
-    //     CFNotificationCenterRef r = CFNotificationCenterGetDarwinNotifyCenter();
-    //     CFNotificationCenterPostNotification(r, CFSTR("luaERROR"), NULL, NULL, true);
-    // }
+    NSData *data = [NSPropertyListSerialization dataWithPropertyList:errors format:NSPropertyListBinaryFormat_v1_0 options:0 error:NULL];
+    if(data)
+    {
+        [data writeToFile:LOG_DIR".errornotify" atomically:true];
+        CFNotificationCenterRef r = CFNotificationCenterGetDarwinNotifyCenter();
+        CFNotificationCenterPostNotification(r, CFSTR("luaERROR"), NULL, NULL, true);
+    }
 }
 
 void close_lua()
@@ -162,20 +162,20 @@ static int open_script(const char *script)
     {
         set_environment(script);
         loaded = lua_pcall(L, 0, 1, 0) == 0;
-    }
 
-    if(!loaded)
+        if(lua_isfunction(L, -1))
+        {
+            lua_pushvalue(L, -1);
+            func = luaL_ref(L, LUA_REGISTRYINDEX);
+        }
+        else
+        {
+            write_error([NSString stringWithFormat:@"error opening %s: result must be a function", script].UTF8String);
+        }
+    }
+    else 
     {
         write_error(lua_tostring(L, -1));
-    }
-    else if(!lua_isfunction(L, -1))
-    {
-        write_error([NSString stringWithFormat:@"error opening %s: result must be a function", script].UTF8String);
-    }
-    else
-    {
-        lua_pushvalue(L, -1);
-        func = luaL_ref(L, LUA_REGISTRYINDEX);
     }
 
     lua_pop(L, 1);
@@ -186,7 +186,7 @@ static int open_script(const char *script)
 BOOL init_lua(NSArray *scripts, BOOL random)
 {
     if(scripts == nil) scripts = DEFAULT_EFFECTS;
-    if(scripts.count == 0) return false;
+    else if(scripts.count == 0) return false;
 
     _randomize = random;
     close_lua();
@@ -253,7 +253,7 @@ static int l_loadfile_override(lua_State *L)
 //stolen from lua's print function
 static int l_concat_args(lua_State *L, const char *func_name, const char *separator)
 {
-    int n = lua_gettop(L);  /* number of arguments */
+    const int n = lua_gettop(L);  /* number of arguments */
     int i;
     NSMutableString *result = [NSMutableString string];
     lua_getglobal(L, "tostring");
@@ -347,7 +347,7 @@ static void write_file(const char *msg, const char *filename)
 
 static BOOL manipulate_step(UIView *view, float offset, int funcIndex)
 {
-    int func = [[_scripts objectAtIndex:funcIndex] intValue];
+    const int func = [[_scripts objectAtIndex:funcIndex] intValue];
     lua_rawgeti(L, LUA_REGISTRYINDEX, func);
 
     l_push_view(L, view);
@@ -372,11 +372,6 @@ static BOOL manipulate_step(UIView *view, float offset, int funcIndex)
 BOOL manipulate(UIView *view, float offset, u_int32_t rand)
 {
     if(L == NULL) return false;
-    else if(_scripts.count == 0)
-    {
-        close_lua();
-        return false;
-    }
     if(!set_perspective_distance)
     {
         //the reason why this is not initialized in create_state()
