@@ -19,12 +19,12 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "CLAlignedTableViewCell.h"
 
-#define MARGIN 0
 #define IMAGE_PADDING 10
 #define NUMBER_WIDTH 44
-#define NUMBER_PADDING 5
+#define NUMBER_PADDING 10
+
 @implementation CLAlignedTableViewCell
-@synthesize numberLabel=_numberLabel, effect=_effect;
+@synthesize numberLabel=_numberLabel;
 
 -(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -32,8 +32,7 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
     {
         _numberLabel = [[UILabel alloc] init];
         _numberLabel.font = [_numberLabel.font fontWithSize:16];
-        _numberLabel.textColor = [UIColor colorWithRed:0 green:0.2 blue:1 alpha:1];
-        _numberLabel.backgroundColor = UIColor.clearColor;
+        _numberLabel.textColor = [UIColor systemBlueColor];
     }
     return self;
 }
@@ -47,7 +46,6 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
     //self.imageView.contentMode = UIViewContentModeCenter;//|UIViewContentModeScaleAspectFit;
 
 
-
     NSAttributedString *text = [[NSAttributedString alloc] initWithString:self.numberLabel.text  attributes:@{NSFontAttributeName:self.numberLabel.font}];
 
     CGSize size = 
@@ -55,9 +53,9 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
     //                                     constrainedToSize:CGSizeMake(NUMBER_WIDTH,self.textLabel.frame.size.height)
     //                                         lineBreakMode:self.numberLabel.lineBreakMode] : CGSizeZero;
 
-    size = _numberLabel ? [text boundingRectWithSize:CGSizeMake(NUMBER_WIDTH,self.textLabel.frame.size.height) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size : CGSizeZero;
+    _numberLabel ? [text boundingRectWithSize:CGSizeMake(NUMBER_WIDTH,self.textLabel.frame.size.height) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size : CGSizeZero;
 
-    size.width += NUMBER_PADDING*2;
+    size.width += NUMBER_PADDING;
 
     self.numberLabel.frame = CGRectMake(
             cvs.width - size.width,
@@ -65,14 +63,14 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
             size.width,
             self.textLabel.frame.size.height);
 
-    self.textLabel.frame = CGRectMake(width + MARGIN,
+    self.textLabel.frame = CGRectMake(width,
                               self.textLabel.frame.origin.y,
-                              cvs.width - width*2 - 2*MARGIN - size.width,
+                              cvs.width - width*2 - size.width,
                               self.textLabel.frame.size.height);
 
-    self.detailTextLabel.frame = CGRectMake(width + MARGIN,
+    self.detailTextLabel.frame = CGRectMake(width,
                        self.detailTextLabel.frame.origin.y,
-                       cvs.width - width*2 - 2*MARGIN,
+                       cvs.width - width*2,
                        self.detailTextLabel.frame.size.height);
     [self addSubview:self.numberLabel];
 }

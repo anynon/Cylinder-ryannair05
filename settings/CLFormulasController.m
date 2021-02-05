@@ -203,13 +203,6 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
     ((UINavigationItem *)self.navigationItem).rightBarButtonItem = self.editButton;
 }
 
-- (void)dealloc
-{
-    self.formulas = nil;
-    self.selectedFormula = nil;
-    self.editButton = nil;
-}
-
 - (NSString*)navigationTitle
 {
     return @"Formulas";
@@ -257,10 +250,8 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 {
     if(section == ADD_SECTION)
         return 1;
-    else if(section == FORMULA_SECTION)
-        return self.formulas.count;
-
-    return 0;
+        
+    return self.formulas.count;
 }
 
 // Override to support conditional editing of the table view.

@@ -1,27 +1,7 @@
-/*
-Copyright (C) 2014 Reed Weichler
-
-This file is part of Cylinder.
-
-Cylinder is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Cylinder is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #import "../Defines.h"
 #import "CLEffectsController.h"
 #import "CylinderSettings.h"
 
-// #import "UDTableView.h"
 #import "CLAlignedTableViewCell.h"
 #include <objc/runtime.h>
 
@@ -39,7 +19,7 @@ static CLEffectsController *sharedController = nil;
 
 
 @implementation CLEffectsController
-@synthesize effects = _effects, selectedEffects=_selectedEffects, clearButton=_clearButton;
+@synthesize effects = _effects, selectedEffects=_selectedEffects;
 
 - (instancetype)init
 {
@@ -58,38 +38,32 @@ static CLEffectsController *sharedController = nil;
 		if ([self respondsToSelector:@selector(setView:)])
 			[self performSelectorOnMainThread:@selector(setView:) withObject:_tableView waitUntilDone:YES];
 
-        NSString *text = @"WARNING: combining certain 3D effects may cause lag";
-        UIFont *font = [UIFont boldSystemFontOfSize:15];
-        NSLineBreakMode mode = NSLineBreakByWordWrapping;
+        self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0,0,10,10)];
+        self.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+        self.titleLabel.text = @"Effects";
+        self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        self.navigationItem.titleView = [UIView new];
+        [self.navigationItem.titleView addSubview:self.titleLabel];
 
-        CGSize size = {SCREEN_SIZE.width, 40};
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        size = [text sizeWithFont:font constrainedToSize:size lineBreakMode:mode];
-        #pragma clang diagnostic pop
-        // size = [text boundingRectWithSize:size options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
-        size.width = SCREEN_SIZE.width;
+        [NSLayoutConstraint activateConstraints:@[
+            [self.titleLabel.topAnchor constraintEqualToAnchor:self.navigationItem.titleView.topAnchor],
+            [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.navigationItem.titleView.leadingAnchor],
+            [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.navigationItem.titleView.trailingAnchor],
+            [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.navigationItem.titleView.bottomAnchor],
+        ]];
 
-        UILabel *tableFooter = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
-        tableFooter.textColor = [UIColor blackColor];
-        tableFooter.backgroundColor = [_tableView backgroundColor];
-        tableFooter.opaque = YES;
-        tableFooter.lineBreakMode = mode;
-        tableFooter.numberOfLines = 0;
-        tableFooter.font = font;
-        tableFooter.textAlignment = NSTextAlignmentCenter;
-        tableFooter.text = (NSString *) text;
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:LOCALIZE(@"RESET_EFFECTS", @"Clear") style:UIBarButtonItemStylePlain target:self action:@selector(clear:)];
 
-
-        UIView *wrapperView = [[UIView alloc] initWithFrame:tableFooter.frame];
-        [wrapperView addSubview:tableFooter];
-
-        _tableView.tableFooterView = wrapperView;
-
-        self.clearButton = [UIBarButtonItem.alloc initWithTitle:LOCALIZE(@"RESET_EFFECTS", @"Clear") style:UIBarButtonItemStylePlain target:self action:@selector(clear:)];
 	}
     sharedController = self;
 	return self;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+    if (section == 0) {
+        return @"WARNING: combining certain 3D effects may cause lag";
+    }
+    return nil;
 }
 
 - (void)addEffectsFromDirectory:(NSString *)directory
@@ -107,15 +81,12 @@ static CLEffectsController *sharedController = nil;
         NSArray *scripts = [manager contentsOfDirectoryAtPath:path error:nil];
         if(scripts.count == 0) continue;
 
-        //NSMutableArray *effects = [NSMutableArray array];
         for(NSString *script in scripts)
         {
             CLEffect *effect = [[CLEffect alloc] initWithPath:[path stringByAppendingPathComponent:script]];
             if(effect)
                 [self.effects addObject:effect];
         }
-        //if(effects.count > 0)
-        //    [self.effects setObject:effects forKey:dirName];
     }
     [self.effects sortUsingComparator:^NSComparisonResult(CLEffect *effect1, CLEffect *effect2)
     {
@@ -127,7 +98,6 @@ static CLEffectsController *sharedController = nil;
 {
     if(!name || !directory) return nil;
 
-    //NSArray *effects = [self.effects valueForKey:directory];
     for(CLEffect *effect in self.effects)
     {
         if([effect.name isEqualToString:name] && [effect.directory isEqualToString:directory])
@@ -140,7 +110,6 @@ static CLEffectsController *sharedController = nil;
 
 - (void)refreshList
 {
-    //self.effects = [NSMutableDictionary dictionary];
     self.effects = [NSMutableArray array];
     CylinderSettingsListController *ctrl = (CylinderSettingsListController*)self.parentController;
     [self addEffectsFromDirectory:kEffectsDirectory];
@@ -168,10 +137,8 @@ static CLEffectsController *sharedController = nil;
     }
 }
 
--(void)clear:(UIBarButtonItem *)clearButton
+- (void)clear:(id)sender
 {
-    if(clearButton != self.clearButton) return;
-
     for(CLEffect *effect in self.selectedEffects)
     {
         effect.selected = false;
@@ -193,20 +160,11 @@ static CLEffectsController *sharedController = nil;
     }
     [super viewWillAppear:animated];
 
-    ((UINavigationItem *)self.navigationItem).rightBarButtonItem = self.clearButton;
 }
 
 - (void)dealloc
 {
     sharedController = nil;
-    self.selectedEffects = nil;
-    self.effects = nil;
-    self.clearButton = nil;
-}
-
-- (NSString*)navigationTitle
-{
-    return @"Effects";
 }
 
 - (id)view
@@ -214,50 +172,16 @@ static CLEffectsController *sharedController = nil;
     return _tableView;
 }
 
-/* UITableViewDelegate / UITableViewDataSource Methods {{{ */
-- (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
-{
-    return 1;//self.effects.count;
-}
-
--(NSString *)keyForIndex:(int)index
-{
-    int i = 0;
-    for(NSString *key in self.effects)
-    {
-        if(i == index) return key;
-        i++;
-    }
-    return nil;
-}
-
-- (id) tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
-{
-    return nil;//[self keyForIndex:section];
-}
-
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    if(section == self.effects.count) return 1;
     return self.effects.count;
 
-    //return [[self.effects valueForKey:[self keyForIndex:section]] count];
 }
 
 -(void)setCellIcon:(UITableViewCell *)cell effect:(CLEffect *)effect
 {
     if(effect.broken)
         cell.imageView.image = [UIImage imageWithContentsOfFile:BUNDLE_PATH "error.png"];
-    else
-        cell.imageView.image = nil;
-}
-
--(CLEffect *)effectAtIndexPath:(NSIndexPath *)indexPath
-{
-    //NSString *key = [self keyForIndex:indexPath.section];
-    //NSArray *effects = [self.effects valueForKey:key];
-    CLEffect *effect = [self.effects objectAtIndex:indexPath.row];
-    return effect;
 }
 
 -(id)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -270,18 +194,15 @@ static CLEffectsController *sharedController = nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
 
-    CLEffect *effect = [self effectAtIndexPath:indexPath];
-    cell.effect.cell = nil;
-    effect.cell.effect = nil;
+    CLEffect *effect = [self.effects objectAtIndex:indexPath.row];
     effect.cell = cell;
-    cell.effect = effect;
 
     cell.textLabel.text = effect.name;
     cell.detailTextLabel.text = effect.directory;
     cell.selected = false;
     [self setCellIcon:cell effect:effect];
 
-    cell.numberLabel.text = effect.selected ? [NSString stringWithFormat:@"%d", (int)([self.selectedEffects indexOfObject:effect] + 1)] : @"";
+    cell.numberLabel.text = effect.selected ? [NSString stringWithFormat:@"%lu", ([self.selectedEffects indexOfObject:effect] + 1)] : @"";
 
     return cell;
 }
@@ -293,7 +214,7 @@ static CLEffectsController *sharedController = nil;
         // deselect old one
         [tableView deselectRowAtIndexPath:indexPath animated:true];
 
-        CLEffect *effect = [self effectAtIndexPath:indexPath];
+        CLEffect *effect = [self.effects objectAtIndex:indexPath.row];
         effect.selected = !effect.selected;
 
         if(effect.selected)
@@ -324,29 +245,11 @@ static CLEffectsController *sharedController = nil;
     ctrl.selectedEffects = self.selectedEffects;
 }
 
-- (UITableViewCellEditingStyle)tableView:(UITableView*)tableView editingStyleForRowAtIndexPath:(NSIndexPath*)indexPath
-{
-    return (UITableViewCellEditingStyle)3;
-}
-
 @end
-
-
-// borrowed from winterboard
-#define WBSAddMethod(_class, _sel, _imp, _type) \
-    if (![[_class class] instancesRespondToSelector:@selector(_sel)]) \
-        class_addMethod([_class class], @selector(_sel), (IMP)_imp, _type)
-
-void $PSViewController$hideNavigationBarButtons(PSRootController *self, SEL _cmd) {
-}
-
-// id $PSViewController$initForContentSize$(PSRootController *self, SEL _cmd, CGRect contentSize) {
-//     return [self init];
-// }
 
 #define ERROR_DIR @"/var/mobile/Library/Logs/Cylinder/.errornotify"
 
-static inline void luaErrorNotification(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
+static void luaErrorNotification()
 {
     CLEffectsController *self = sharedController;
     if(!self) return;
@@ -368,13 +271,11 @@ static inline void luaErrorNotification(CFNotificationCenterRef center, void *ob
 
         [self setCellIcon:effect.cell effect:effect];
     }
-    if(changed) [(UITableView *)self.view reloadData];
+    if(changed) [[self view] reloadData];
 }
 
 static __attribute__((constructor)) void __wbsInit() {
-    WBSAddMethod(PSViewController, hideNavigationBarButtons, $PSViewController$hideNavigationBarButtons, "v@:");
-    // WBSAddMethod(PSViewController, initForContentSize:, $PSViewController$initForContentSize$, "@@:{ff}");
 
     CFNotificationCenterRef r = CFNotificationCenterGetDarwinNotifyCenter();
-    CFNotificationCenterAddObserver(r, NULL, &luaErrorNotification, (CFStringRef)@"luaERROR", NULL, 0);
+    CFNotificationCenterAddObserver(r, NULL, (CFNotificationCallback)luaErrorNotification, (CFStringRef)@"luaERROR", NULL, CFNotificationSuspensionBehaviorCoalesce);
 }
