@@ -41,18 +41,12 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
         if(i != ext.count - 2) [name appendString:@"."];
     }
 
-	if ((self = [super init])) {
+	if (self = [super init]) {
 		self.name = name;
         self.path = path;
         self.directory = [components objectAtIndex:(components.count - 2)];
 	}
 	return self;
-}
-
-- (void)dealloc {
-	self.name = nil;
-	self.path = nil;
-    self.directory = nil;
 }
 
 @end

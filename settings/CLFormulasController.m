@@ -19,19 +19,12 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 
 #import "../Defines.h"
 #import "CLFormulasController.h"
-#import "CylinderSettings.h"
 
-// #import "UDTableView.h"
-#import "CLAlignedTableViewCell.h"
 #include <objc/runtime.h>
 
 #define ADD_SECTION 0
 #define FORMULA_SECTION 1
 
-@interface UITableView (Private)
-- (NSArray *) indexPathsForSelectedRows;
-@property(nonatomic) BOOL allowsMultipleSelectionDuringEditing;
-@end
 
 @interface PSViewController(Private)
 -(void)viewWillAppear:(BOOL)animated;

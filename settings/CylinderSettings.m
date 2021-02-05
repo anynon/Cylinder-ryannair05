@@ -1,34 +1,9 @@
-/*
-Copyright (C) 2014 Reed Weichler
-
-This file is part of Cylinder.
-
-Cylinder is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Cylinder is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #import "CylinderSettings.h"
 #import "../Defines.h"
-#import "twitter.h"
 #import "CLEffect.h"
-
-@interface PSListController()
--(id)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section;
-@end
 
 @interface CylinderSettingsListController()
 {
-    NSMutableDictionary *_settings;
     NSString *_defaultFooterText;
 }
 @property (nonatomic, retain, readwrite) NSMutableDictionary *settings;
@@ -56,22 +31,15 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
-    NSString *path = [NSString stringWithFormat:@"/var/mobile/Library/Preferences/%@.plist", specifier.properties[@"defaults"]];
-    NSMutableDictionary *settings = [NSMutableDictionary dictionary];
-    [settings addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:path]];
 
-    [settings setObject:value forKey:specifier.properties[@"key"]];
-    [settings writeToFile:path atomically:YES];
-    CFStringRef notificationName = (__bridge CFStringRef)specifier.properties[@"PostNotification"];
-    if (notificationName) {
-        CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), notificationName, NULL, NULL, YES);
-    }
+    [_settings setValue:value forKey:specifier.properties[@"key"]];
+
+    [self writeSettings];
 }
 
 - (id)readPreferenceValue:(PSSpecifier *)specifier {
     NSString *path = [NSString stringWithFormat:@"/var/mobile/Library/Preferences/%@.plist", specifier.properties[@"defaults"]];
-    NSMutableDictionary *settings = [NSMutableDictionary dictionary];
-    [settings addEntriesFromDictionary:[NSDictionary dictionaryWithContentsOfFile:path]];
+    NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:path];
 
     return ([settings objectForKey:specifier.properties[@"key"]]) ?: specifier.properties[@"default"];
 }
@@ -86,7 +54,20 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 - (void)visitTwitter:(id)sender {
-    open_twitter();
+    NSString* user = @"rweichler";
+    NSURL* url = [NSURL URLWithString: [@"https://twitter.com/" stringByAppendingString:user]];
+
+    if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetbot://"]]) {
+        url = [NSURL URLWithString: [@"tweetbot:///user_profile/" stringByAppendingString:user]];
+    } else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitterrific://"]]) {
+        url = [NSURL URLWithString: [@"twitterrific:///profile?screen_name=" stringByAppendingString:user]];
+    } else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetings://"]]) {
+        url = [NSURL URLWithString: [@"tweetings:///user?screen_name=" stringByAppendingString:user]];
+    } else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitter://"]]) {
+        url = [NSURL URLWithString: [@"twitter://user?screen_name=" stringByAppendingString:user]];
+    }
+
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 }
 
 - (void)visitWeibo:(id)sender {
@@ -99,15 +80,6 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 
 - (void)visitReddit:(id)sender {
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://reddit.com/r/cylinder"] options:@{} completionHandler:nil];
-}
-
-- (void)respring:(id)sender {
-	// set the enabled value
-	UITableViewCell *cell = [(UITableView*)self.table cellForRowAtIndexPath: [NSIndexPath indexPathForRow:0 inSection:0]];
-	UISwitch *swit = (UISwitch *)cell.accessoryView;
-	[_settings setObject: [NSNumber numberWithBool:swit.on] forKey:PrefsEnabledKey];
-
-	[self writeSettings];
 }
 
 - (void)writeSettings {
@@ -175,12 +147,6 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
         return LOCALIZE(@"FOOTER_TEXT", _defaultFooterText);
     else
         return [super tableView:tableView titleForFooterInSection:section];
-}
-
-- (void)dealloc {
-	// set the enabled value
-
-	self.settings = nil;
 }
 
 @end

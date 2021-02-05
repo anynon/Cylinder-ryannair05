@@ -18,7 +18,7 @@ along with Cylinder.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #import <Preferences/PSViewController.h>
-#import "CLEffect.h"
+#import "CylinderSettings.h"
 
 @interface CLFormulasController : PSViewController <UITableViewDelegate, UITableViewDataSource, UIAlertViewDelegate> {
 	UITableView *_tableView;

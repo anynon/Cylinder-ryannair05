@@ -7,16 +7,10 @@
 
 static CLEffectsController *sharedController = nil;
 
-@interface UITableView (Private)
-- (NSArray *) indexPathsForSelectedRows;
-@property(nonatomic) BOOL allowsMultipleSelectionDuringEditing;
-@end
-
 @interface PSViewController(Private)
 -(void)viewWillAppear:(BOOL)animated;
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 @end
-
 
 @implementation CLEffectsController
 @synthesize effects = _effects, selectedEffects=_selectedEffects;

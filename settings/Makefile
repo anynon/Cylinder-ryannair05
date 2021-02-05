@@ -3,7 +3,7 @@ include $(THEOS)/makefiles/common.mk
 ARCHS = arm64 arm64e
 
 BUNDLE_NAME = CylinderSettings
-CylinderSettings_FILES = CLAlignedTableViewCell.m CLDonateController.m CLEffect.m CLEffectsController.m CLFormulasController.m CylinderSettings.m
+CylinderSettings_FILES = CLAlignedTableViewCell.m CLDonateController.m CLEffect.m CLEffectsController.m CLFormulasController.m CLTwitterCell.m CylinderSettings.m
 CylinderSettings_INSTALL_PATH = /Library/PreferenceBundles
 CylinderSettings_PRIVATE_FRAMEWORKS = Preferences
 
